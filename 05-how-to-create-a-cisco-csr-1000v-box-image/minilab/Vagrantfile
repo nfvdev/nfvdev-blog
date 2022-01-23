@@ -1,0 +1,19 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure("2") do |config|
+  config.ssh.insert_key = false # By default, Vagrant will try and change the insecure SSH key to a better one. This won't work for us as it does not know how to talk ios.
+  config.vm.box = "csr1000v-universalk9.17.03.02-serial.box" # Use the ios box image
+  config.vm.synced_folder '.', '/vagrant', disabled: true # Disable shared folders
+  config.vm.guest = :linux # Tell Vagrant that it is Linux so it doesn't error
+
+  config.vm.define "ios1" do |ios1| # On ios1, configure 2 additional NICs
+    ios1.vm.network 'private_network', auto_config: false, nic_type: 'virtio', virtualbox__intnet: "ios1_ios2"
+    ios1.vm.network 'private_network', auto_config: false, nic_type: 'virtio', virtualbox__intnet: "ios1_internal"
+  end
+
+  config.vm.define "ios2" do |ios2| # On ios2, configure 2 additional NICs
+    ios2.vm.network 'private_network', auto_config: false, nic_type: 'virtio', virtualbox__intnet: "ios1_ios2"
+    ios2.vm.network 'private_network', auto_config: false, nic_type: 'virtio', virtualbox__intnet: "ios2_internal"
+  end
+end
