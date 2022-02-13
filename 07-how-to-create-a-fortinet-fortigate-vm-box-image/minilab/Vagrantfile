@@ -1,0 +1,19 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure("2") do |config|
+  config.ssh.insert_key = false # By default, Vagrant will try and change the insecure SSH key to a better one. This won't work for us as it does not know how to talk fortigate.
+  config.vm.box = "fortigate-7.0.5.box" # Use the fortigate box image
+  config.vm.synced_folder '.', '/vagrant', disabled: true # Disable shared folders
+  config.vm.guest = :linux # Tell Vagrant that it is Linux so it doesn't error
+
+  config.vm.define "fortigate1" do |fortigate1| # On fortigate1, configure 2 additional NICs
+    fortigate1.vm.network 'private_network', auto_config: false, nic_type: 'virtio', virtualbox__intnet: "fortigate1_fortigate2"
+    fortigate1.vm.network 'private_network', auto_config: false, nic_type: 'virtio', virtualbox__intnet: "fortigate1_internal"
+  end
+
+  config.vm.define "fortigate2" do |fortigate2| # On fortigate2, configure 2 additional NICs
+    fortigate2.vm.network 'private_network', auto_config: false, nic_type: 'virtio', virtualbox__intnet: "fortigate1_fortigate2"
+    fortigate2.vm.network 'private_network', auto_config: false, nic_type: 'virtio', virtualbox__intnet: "fortigate2_internal"
+  end
+end
