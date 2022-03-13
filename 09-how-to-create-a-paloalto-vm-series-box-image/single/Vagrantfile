@@ -1,0 +1,10 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure("2") do |config|
+  config.ssh.insert_key = false # By default, Vagrant will try and change the insecure SSH key to a better one. This won't work for us as it does not know how to talk Palo Alto.
+  config.vm.box = "pa-10.0.4.box" # Use the Palo Alto box image
+  config.vm.synced_folder '.', '/vagrant', disabled: true # Disable shared folders
+  config.vm.guest = :linux # Tell Vagrant that it is Linux so it doesn't error
+  config.vm.boot_timeout = 900 # Palo Alto takes a while to boot up.
+end

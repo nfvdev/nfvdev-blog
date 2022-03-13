@@ -1,0 +1,20 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure("2") do |config|
+  config.ssh.insert_key = false # By default, Vagrant will try and change the insecure SSH key to a better one. This won't work for us as it does not know how to talk paloalto.
+  config.vm.box = "pa-10.0.4.box" # Use the paloalto box image
+  config.vm.synced_folder '.', '/vagrant', disabled: true # Disable shared folders
+  config.vm.guest = :linux # Tell Vagrant that it is Linux so it doesn't error
+  config.vm.boot_timeout = 900 # Palo Alto takes a while to boot up.
+
+  config.vm.define "paloalto1" do |paloalto1| # On paloalto1, configure 2 additional NICs
+    paloalto1.vm.network 'private_network', auto_config: false, nic_type: 'virtio', virtualbox__intnet: "paloalto1_paloalto2"
+    paloalto1.vm.network 'private_network', auto_config: false, nic_type: 'virtio', virtualbox__intnet: "paloalto1_internal"
+  end
+
+  config.vm.define "paloalto2" do |paloalto2| # On paloalto2, configure 2 additional NICs
+    paloalto2.vm.network 'private_network', auto_config: false, nic_type: 'virtio', virtualbox__intnet: "paloalto1_paloalto2"
+    paloalto2.vm.network 'private_network', auto_config: false, nic_type: 'virtio', virtualbox__intnet: "paloalto2_internal"
+  end
+end
